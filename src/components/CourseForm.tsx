@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Student, Course } from '@/types';
 import { useAppContext } from '@/context/AppContext';
 import { processAllStudents } from '@/utils/grades';
@@ -84,17 +84,47 @@ export default function CourseForm({ editCourse, onComplete }: CourseFormProps) 
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === 'courseName' && value.trim()) {
+        const code = existingCourseMap.get(value.trim().toLowerCase());
+        if (code) updated.courseCode = code;
+      }
+      return updated;
+    });
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   }
 
   const selectedStudent = state.students.find((s) => s.id === selectedStudentId);
 
+  const existingCourseMap = useMemo(() => {
+    const map = new Map<string, string>();
+    state.students.forEach((s) =>
+      s.courses.forEach((c) => {
+        const key = c.courseName.trim().toLowerCase();
+        if (!map.has(key)) map.set(key, c.courseCode);
+      })
+    );
+    return map;
+  }, [state.students]);
+
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-        {editCourse ? 'Edit Course Score' : 'Add Course Score'}
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          {editCourse ? 'Edit Course Score' : 'Add Course Score'}
+        </h2>
+        <button
+          type="button"
+          onClick={onComplete}
+          className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          title="Close"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Student</label>

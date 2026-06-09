@@ -71,8 +71,25 @@ export default function ExportButtons() {
           </thead>
           <tbody>
             ${students
-              .map(
-                (s, i) => `
+              .flatMap((s, i) =>
+                s.courses.length > 0
+                  ? s.courses.map((c) => {
+                      const { grade } = getGrade(c.score);
+                      return `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${s.fullName}</td>
+                <td>${s.studentId}</td>
+                <td>${s.department}</td>
+                <td>${s.level}</td>
+                <td>${c.courseName}</td>
+                <td>${c.courseCode}</td>
+                <td>${c.score}</td>
+                <td>${grade}</td>
+              </tr>`;
+                    })
+                  : [
+                      `
               <tr>
                 <td>${i + 1}</td>
                 <td>${s.fullName}</td>
@@ -80,7 +97,8 @@ export default function ExportButtons() {
                 <td>${s.department}</td>
                 <td>${s.level}</td>
                 <td colspan="4" style="text-align:center; color:#999;">— No courses —</td>
-              </tr>`
+              </tr>`,
+                    ]
               )
               .join('')}
           </tbody>

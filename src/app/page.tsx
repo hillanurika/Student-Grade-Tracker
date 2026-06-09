@@ -13,11 +13,13 @@ import SearchFilter from '@/components/SearchFilter';
 import RecordTable from '@/components/RecordTable';
 import ThemeToggle from '@/components/ThemeToggle';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import AllCoursesDialog from '@/components/AllCoursesDialog';
 
 export default function Home() {
   const { state, dispatch } = useAppContext();
   const [showStudentForm, setShowStudentForm] = useState(false);
   const [showCourseForm, setShowCourseForm] = useState(false);
+  const [showAllCoursesDialog, setShowAllCoursesDialog] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showLoadConfirm, setShowLoadConfirm] = useState(false);
 
@@ -312,15 +314,28 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Course Scores</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Add and manage course scores for students</p>
               </div>
-              <button
-                onClick={() => setShowCourseForm(!showCourseForm)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showCourseForm ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'} />
-                </svg>
-                {showCourseForm ? 'Close Form' : 'Add Course'}
-              </button>
+              <div className="flex items-center gap-2">
+                {state.students.length > 0 && (
+                  <button
+                    onClick={() => setShowAllCoursesDialog(true)}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    View All Courses
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowCourseForm(!showCourseForm)}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showCourseForm ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'} />
+                  </svg>
+                  {showCourseForm ? 'Close Form' : 'Add Course'}
+                </button>
+              </div>
             </div>
 
             {showCourseForm && (
@@ -419,6 +434,11 @@ export default function Home() {
           </>
         )}
       </main>
+
+      <AllCoursesDialog
+        isOpen={showAllCoursesDialog}
+        onClose={() => setShowAllCoursesDialog(false)}
+      />
 
       <ConfirmDialog
         isOpen={showClearConfirm}
