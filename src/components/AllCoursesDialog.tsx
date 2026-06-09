@@ -3,7 +3,6 @@
 import { useMemo } from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { processAllStudents } from '@/utils/grades';
-import { getScoreColor, getGradeBadgeClass } from '@/utils/grades';
 
 interface AllCoursesDialogProps {
   isOpen: boolean;
@@ -15,14 +14,8 @@ export default function AllCoursesDialog({ isOpen, onClose }: AllCoursesDialogPr
 
   const allCourses = useMemo(() => {
     const records = processAllStudents(state.students);
-    return records.flatMap((record) =>
-      record.gradedCourses.map((course) => ({
-        ...course,
-        studentName: record.fullName,
-        studentId: record.studentId,
-        department: record.department,
-      }))
-    ).sort((a, b) => b.score - a.score);
+    return records.flatMap((record) => record.gradedCourses)
+      .sort((a, b) => b.score - a.score);
   }, [state.students]);
 
   if (!isOpen) return null;
@@ -37,7 +30,7 @@ export default function AllCoursesDialog({ isOpen, onClose }: AllCoursesDialogPr
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">All Courses</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {allCourses.length} course(s) across {state.students.length} student(s)
+              {allCourses.length} course(s)
             </p>
           </div>
           <button
@@ -56,34 +49,18 @@ export default function AllCoursesDialog({ isOpen, onClose }: AllCoursesDialogPr
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-750 border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Student</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">ID</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Department</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Course</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Code</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Score</th>
-                    <th className="text-center py-3 px-4 font-medium text-gray-500 dark:text-gray-400">Grade</th>
                   </tr>
                 </thead>
                 <tbody>
                   {allCourses.map((course) => (
                     <tr
-                      key={`${course.studentId}-${course.id}`}
+                      key={course.id}
                       className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-750"
                     >
-                      <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">{course.studentName}</td>
-                      <td className="py-3 px-4 text-gray-600 dark:text-gray-400 font-mono text-xs">{course.studentId}</td>
-                      <td className="py-3 px-4 text-gray-600 dark:text-gray-400">{course.department}</td>
                       <td className="py-3 px-4 text-gray-900 dark:text-white">{course.courseName}</td>
                       <td className="py-3 px-4 text-gray-600 dark:text-gray-400 font-mono text-xs">{course.courseCode}</td>
-                      <td className={`py-3 px-4 text-center font-semibold ${getScoreColor(course.score)}`}>
-                        {course.score}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${getGradeBadgeClass(course.grade)}`}>
-                          {course.grade}
-                        </span>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
